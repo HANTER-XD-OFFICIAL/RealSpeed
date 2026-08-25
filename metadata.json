@@ -1,0 +1,6 @@
+{
+  "name": "RealSpeed",
+  "description": "Authentic Gigabit WiFi & ISP speed benchmark with anti-spoof multi-country routing, latency telemetry, and developer support.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
