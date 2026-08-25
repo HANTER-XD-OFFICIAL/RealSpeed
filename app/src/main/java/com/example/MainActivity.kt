@@ -5,6 +5,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -267,47 +274,61 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize()
                             .padding(innerPadding)
                     ) {
-                        when (currentTab) {
-                            0 -> SpeedTestScreen(
-                                testStage = testStage,
-                                speedMetrics = speedMetrics,
-                                networkType = networkType,
-                                ispDetails = ispDetails,
-                                wifiDetails = wifiDetails,
-                                selectedServer = selectedServer,
-                                isMultiServerMode = isMultiServerMode,
-                                onToggleMultiServerMode = { viewModel.toggleMultiServerMode() },
-                                onStartTest = { viewModel.startSpeedTest() },
-                                onCancelTest = { viewModel.cancelTest() },
-                                onSelectServerClick = { currentTab = 2 }
-                            )
-                            1 -> NetworkRadarScreen(
-                                networkType = networkType,
-                                ispDetails = ispDetails,
-                                wifiDetails = wifiDetails,
-                                onRefresh = { viewModel.refreshNetworkDetails() }
-                            )
-                            2 -> ServersScreen(
-                                serversList = serversList,
-                                selectedServer = selectedServer,
-                                onSelectServer = { server ->
-                                    viewModel.selectServer(server)
-                                    currentTab = 0
-                                },
-                                onPingAll = { viewModel.pingAllServers() }
-                            )
-                            3 -> HistoryScreen(
-                                results = historyResults,
-                                averageDownload = averageDownload,
-                                maxDownload = maxDownload,
-                                onDeleteItem = { id -> viewModel.deleteHistoryItem(id) },
-                                onClearAll = { viewModel.clearAllHistory() },
-                                onOpenSupport = { currentTab = 4 }
-                            )
-                            4 -> DeveloperSupportScreen(
-                                ispDetails = ispDetails,
-                                wifiDetails = wifiDetails
-                            )
+                        AnimatedContent(
+                            targetState = currentTab,
+                            transitionSpec = {
+                                if (targetState > initialState) {
+                                    (slideInHorizontally(tween(300)) { width -> width / 3 } + fadeIn(tween(300)))
+                                        .togetherWith(slideOutHorizontally(tween(250)) { width -> -width / 3 } + fadeOut(tween(200)))
+                                } else {
+                                    (slideInHorizontally(tween(300)) { width -> -width / 3 } + fadeIn(tween(300)))
+                                        .togetherWith(slideOutHorizontally(tween(250)) { width -> width / 3 } + fadeOut(tween(200)))
+                                }
+                            },
+                            label = "tabTransition"
+                        ) { tab ->
+                            when (tab) {
+                                0 -> SpeedTestScreen(
+                                    testStage = testStage,
+                                    speedMetrics = speedMetrics,
+                                    networkType = networkType,
+                                    ispDetails = ispDetails,
+                                    wifiDetails = wifiDetails,
+                                    selectedServer = selectedServer,
+                                    isMultiServerMode = isMultiServerMode,
+                                    onToggleMultiServerMode = { viewModel.toggleMultiServerMode() },
+                                    onStartTest = { viewModel.startSpeedTest() },
+                                    onCancelTest = { viewModel.cancelTest() },
+                                    onSelectServerClick = { currentTab = 2 }
+                                )
+                                1 -> NetworkRadarScreen(
+                                    networkType = networkType,
+                                    ispDetails = ispDetails,
+                                    wifiDetails = wifiDetails,
+                                    onRefresh = { viewModel.refreshNetworkDetails() }
+                                )
+                                2 -> ServersScreen(
+                                    serversList = serversList,
+                                    selectedServer = selectedServer,
+                                    onSelectServer = { server ->
+                                        viewModel.selectServer(server)
+                                        currentTab = 0
+                                    },
+                                    onPingAll = { viewModel.pingAllServers() }
+                                )
+                                3 -> HistoryScreen(
+                                    results = historyResults,
+                                    averageDownload = averageDownload,
+                                    maxDownload = maxDownload,
+                                    onDeleteItem = { id -> viewModel.deleteHistoryItem(id) },
+                                    onClearAll = { viewModel.clearAllHistory() },
+                                    onOpenSupport = { currentTab = 4 }
+                                )
+                                4 -> DeveloperSupportScreen(
+                                    ispDetails = ispDetails,
+                                    wifiDetails = wifiDetails
+                                )
+                            }
                         }
                     }
                 }

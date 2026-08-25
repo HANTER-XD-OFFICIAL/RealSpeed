@@ -1,18 +1,28 @@
 package com.example.ui.screens
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,9 +60,12 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -257,90 +270,138 @@ private fun ProActionButton(
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "btnPulse")
     val pulseAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.6f,
+        initialValue = 0.5f,
         targetValue = 1.0f,
         animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = FastOutSlowInEasing),
+            animation = tween(900, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "btnGlow"
     )
 
-    if (isRunning) {
-        Button(
-            onClick = onCancelTest,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = DangerRed.copy(alpha = 0.15f),
-                contentColor = DangerRed
-            ),
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(54.dp)
-                .border(1.dp, DangerRed.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
-                .testTag("stop_test_button")
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.Stop,
-                    contentDescription = "Stop",
-                    tint = DangerRed,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Stop Benchmark",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Black
-                )
-            }
-        }
-    } else {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .background(
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(
-                            Color(0xFF0077B6),
-                            Color(0xFF00B4D8),
-                            NeonCyan
-                        )
-                    ),
-                    shape = RoundedCornerShape(16.dp)
-                )
-                .border(
-                    1.dp,
-                    NeonCyan.copy(alpha = pulseAlpha),
-                    RoundedCornerShape(16.dp)
-                )
-                .clickable { onStartTest() }
-                .testTag("start_test_button"),
-            contentAlignment = Alignment.Center
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+    val shimmerX by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2200, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "shimmerX"
+    )
+
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val buttonScale by animateFloatAsState(
+        targetValue = if (isPressed) 0.96f else 1.0f,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+        label = "buttonScale"
+    )
+
+    AnimatedContent(
+        targetState = isRunning,
+        transitionSpec = {
+            (fadeIn(tween(300)) + androidx.compose.animation.scaleIn(initialScale = 0.92f))
+                .togetherWith(fadeOut(tween(200)) + androidx.compose.animation.scaleOut(targetScale = 0.92f))
+        },
+        label = "actionBtnStateTransition"
+    ) { running ->
+        if (running) {
+            Button(
+                onClick = onCancelTest,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = DangerRed.copy(alpha = 0.18f),
+                    contentColor = DangerRed
+                ),
+                shape = RoundedCornerShape(18.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .border(1.2.dp, DangerRed.copy(alpha = pulseAlpha), RoundedCornerShape(18.dp))
+                    .testTag("stop_test_button")
             ) {
-                Icon(
-                    imageVector = if (testStage == TestStage.COMPLETED) Icons.Default.Refresh else Icons.Default.PlayArrow,
-                    contentDescription = "Start",
-                    tint = Color(0xFF030712),
-                    modifier = Modifier.size(22.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = when {
-                        testStage == TestStage.COMPLETED -> "Run Benchmark Again"
-                        isMultiServerMode -> "Start Gigabit Multi-Node Test"
-                        else -> "Start Gigabit Speed Test"
-                    },
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Black,
-                    color = Color(0xFF030712),
-                    letterSpacing = 0.5.sp
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Stop,
+                        contentDescription = "Stop",
+                        tint = DangerRed,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Stop Benchmark",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Black
+                    )
+                }
+            }
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .scale(buttonScale)
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(
+                                Color(0xFF0077B6),
+                                Color(0xFF00B4D8),
+                                NeonCyan
+                            )
+                        ),
+                        shape = RoundedCornerShape(18.dp)
+                    )
+                    .border(
+                        1.5.dp,
+                        NeonCyan.copy(alpha = pulseAlpha),
+                        RoundedCornerShape(18.dp)
+                    )
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) { onStartTest() }
+                    .testTag("start_test_button"),
+                contentAlignment = Alignment.Center
+            ) {
+                // Shimmering Laser Beam overlay across the button
+                Canvas(modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(18.dp))) {
+                    val width = size.width
+                    val height = size.height
+                    val scanX = width * shimmerX
+                    drawLine(
+                        brush = Brush.horizontalGradient(
+                            listOf(Color.Transparent, Color.White.copy(alpha = 0.35f), Color.Transparent),
+                            startX = scanX - 40f,
+                            endX = scanX + 40f
+                        ),
+                        start = Offset(scanX, 0f),
+                        end = Offset(scanX, height),
+                        strokeWidth = 30.dp.toPx()
+                    )
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = if (testStage == TestStage.COMPLETED) Icons.Default.Refresh else Icons.Default.PlayArrow,
+                        contentDescription = "Start",
+                        tint = Color(0xFF030712),
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = when {
+                            testStage == TestStage.COMPLETED -> "Run Benchmark Again"
+                            isMultiServerMode -> "Start Gigabit Multi-Node Test"
+                            else -> "Start Gigabit Speed Test"
+                        },
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color(0xFF030712),
+                        letterSpacing = 0.5.sp
+                    )
+                }
             }
         }
     }
@@ -798,15 +859,36 @@ private fun MetricBox(
     isActive: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val bgColor = if (isActive) iconColor.copy(alpha = 0.08f) else CyberSurfaceElevated
+    val infiniteTransition = rememberInfiniteTransition(label = "metricBoxGlow")
+    val pulseGlow by infiniteTransition.animateFloat(
+        initialValue = 0.5f,
+        targetValue = 1.0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(700, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "boxGlow"
+    )
+
+    val boxScale by animateFloatAsState(
+        targetValue = if (isActive) 1.04f else 1.0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "boxScale"
+    )
+
+    val bgColor = if (isActive) iconColor.copy(alpha = 0.12f) else CyberSurfaceElevated
 
     Box(
         modifier = modifier
+            .scale(boxScale)
             .background(bgColor, RoundedCornerShape(14.dp))
             .border(
-                1.dp,
-                if (isActive) iconColor.copy(alpha = 0.7f) else CyberCardBorder,
-                RoundedCornerShape(14.dp)
+                width = if (isActive) 1.5.dp else 1.dp,
+                color = if (isActive) iconColor.copy(alpha = pulseGlow) else CyberCardBorder,
+                shape = RoundedCornerShape(14.dp)
             )
             .padding(vertical = 10.dp, horizontal = 4.dp)
     ) {
@@ -826,17 +908,26 @@ private fun MetricBox(
                     text = title,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = TextSecondary
+                    color = if (isActive) iconColor else TextSecondary
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = value,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Black,
-                fontFamily = FontFamily.Monospace,
-                color = TextPrimary
-            )
+            AnimatedContent(
+                targetState = value,
+                transitionSpec = {
+                    (fadeIn(tween(150)) + androidx.compose.animation.scaleIn(initialScale = 0.9f))
+                        .togetherWith(fadeOut(tween(100)))
+                },
+                label = "metricValueAnim"
+            ) { targetVal ->
+                Text(
+                    text = targetVal,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Black,
+                    fontFamily = FontFamily.Monospace,
+                    color = TextPrimary
+                )
+            }
             Text(
                 text = unit,
                 fontSize = 9.sp,
