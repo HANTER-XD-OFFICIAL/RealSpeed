@@ -56,8 +56,15 @@ fun LiveSpeedGraph(
     isBengali: Boolean = false,
     modifier: Modifier = Modifier
 ) {
+    val isUploading = testStage == TestStage.UPLOADING || (samples.lastOrNull()?.isDownload == false && testStage != TestStage.DOWNLOADING)
     val isDownload = testStage == TestStage.DOWNLOADING || (samples.lastOrNull()?.isDownload == true)
-    val lineColor = if (isDownload) NeonCyan else ElectricBlue
+
+    val lineColor = when {
+        isUploading -> Color(0xFFC084FC) // Neon Amethyst for Uplink
+        isDownload -> NeonCyan
+        else -> ElectricBlue
+    }
+
     val isRunning = testStage != TestStage.IDLE && testStage != TestStage.COMPLETED && testStage != TestStage.ERROR
 
     val infiniteTransition = rememberInfiniteTransition(label = "graphScan")
@@ -65,7 +72,7 @@ fun LiveSpeedGraph(
         initialValue = 0f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = LinearEasing),
+            animation = tween(if (isUploading) 1400 else 2000, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
         ),
         label = "scanner"
@@ -76,7 +83,11 @@ fun LiveSpeedGraph(
             .fillMaxWidth()
             .height(125.dp)
             .background(CyberSurface, RoundedCornerShape(16.dp))
-            .border(1.dp, CyberCardBorder.copy(alpha = 0.7f), RoundedCornerShape(16.dp))
+            .border(
+                1.dp,
+                if (isUploading) Color(0xFFC084FC).copy(alpha = 0.4f) else CyberCardBorder.copy(alpha = 0.7f),
+                RoundedCornerShape(16.dp)
+            )
             .padding(horizontal = 14.dp, vertical = 10.dp)
             .testTag("live_speed_graph")
     ) {
@@ -93,10 +104,10 @@ fun LiveSpeedGraph(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "Real-Time Telemetry Stream",
+                        text = if (isUploading) "▲ Uplink Transmission Telemetry" else "Real-Time Telemetry Stream",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = TextPrimary
+                        color = if (isUploading) Color(0xFFE2E8F0) else TextPrimary
                     )
                 }
 
@@ -104,15 +115,15 @@ fun LiveSpeedGraph(
 
                 // Peak Indicator Pill (Gigabit formatted)
                 val peakText = if (peakMbps >= 1000.0) {
-                    "PEAK: ${String.format("%.2f", peakMbps / 1000.0)} Gbps"
+                    "${if (isUploading) "UP PEAK" else "PEAK"}: ${String.format("%.2f", peakMbps / 1000.0)} Gbps"
                 } else {
-                    "PEAK: ${String.format("%.1f", peakMbps)} Mbps"
+                    "${if (isUploading) "UP PEAK" else "PEAK"}: ${String.format("%.1f", peakMbps)} Mbps"
                 }
 
                 Box(
                     modifier = Modifier
-                        .background(lineColor.copy(alpha = 0.1f), RoundedCornerShape(6.dp))
-                        .border(1.dp, lineColor.copy(alpha = 0.3f), RoundedCornerShape(6.dp))
+                        .background(lineColor.copy(alpha = 0.12f), RoundedCornerShape(6.dp))
+                        .border(1.dp, lineColor.copy(alpha = 0.35f), RoundedCornerShape(6.dp))
                         .padding(horizontal = 6.dp, vertical = 2.dp)
                 ) {
                     Text(
@@ -168,32 +179,46 @@ fun LiveSpeedGraph(
                         fillPath.close()
 
                         // Gradient Area Fill
-                        drawPath(
-                            path = fillPath,
-                            brush = Brush.verticalGradient(
+                        val fillGradient = if (isUploading) {
+                            Brush.verticalGradient(
+                                colors = listOf(
+                                    Color(0xFFC084FC).copy(alpha = 0.35f),
+                                    Color(0xFF818CF8).copy(alpha = 0.15f),
+                                    Color.Transparent
+                                ),
+                                startY = 0f,
+                                endY = height
+                            )
+                        } else {
+                            Brush.verticalGradient(
                                 colors = listOf(lineColor.copy(alpha = 0.25f), Color.Transparent),
                                 startY = 0f,
                                 endY = height
                             )
+                        }
+
+                        drawPath(
+                            path = fillPath,
+                            brush = fillGradient
                         )
 
                         // Glowing Main Oscillograph Line
                         drawPath(
                             path = path,
                             color = lineColor,
-                            style = Stroke(width = 2.2.dp.toPx(), cap = StrokeCap.Round)
+                            style = Stroke(width = 2.4.dp.toPx(), cap = StrokeCap.Round)
                         )
 
                         // Live Head Tip Marker
                         val lastY = (height - (samples.last().speedMbps / maxSpeed * height)).toFloat().coerceIn(0f, height)
                         drawCircle(
-                            color = lineColor.copy(alpha = 0.4f),
-                            radius = 6.dp.toPx(),
+                            color = lineColor.copy(alpha = 0.45f),
+                            radius = 7.dp.toPx(),
                             center = Offset(lastX, lastY)
                         )
                         drawCircle(
                             color = Color.White,
-                            radius = 2.5.dp.toPx(),
+                            radius = 2.8.dp.toPx(),
                             center = Offset(lastX, lastY)
                         )
                     }
@@ -203,13 +228,13 @@ fun LiveSpeedGraph(
                         val scanX = width * scanLineX
                         drawLine(
                             brush = Brush.horizontalGradient(
-                                listOf(Color.Transparent, lineColor.copy(alpha = 0.35f), Color.Transparent),
-                                startX = scanX - 20f,
-                                endX = scanX + 20f
+                                listOf(Color.Transparent, lineColor.copy(alpha = 0.40f), Color.Transparent),
+                                startX = scanX - 25f,
+                                endX = scanX + 25f
                             ),
                             start = Offset(scanX, 0f),
                             end = Offset(scanX, height),
-                            strokeWidth = 1.5.dp.toPx()
+                            strokeWidth = 1.8.dp.toPx()
                         )
                     }
                 }

@@ -85,7 +85,7 @@ class SpeedTestViewModel(application: Application) : AndroidViewModel(applicatio
     private val _isBengali = MutableStateFlow(false)
     val isBengali: StateFlow<Boolean> = _isBengali.asStateFlow()
 
-    private val _isMultiServerMode = MutableStateFlow(true) // Auto Multi-Country International Server mode enabled by default
+    private val _isMultiServerMode = MutableStateFlow(false) // Standard Sustained Single Server Mode default
     val isMultiServerMode: StateFlow<Boolean> = _isMultiServerMode.asStateFlow()
 
     private var activeTestJob: Job? = null

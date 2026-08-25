@@ -50,11 +50,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ui.components.DeveloperSupportDialog
+import com.example.ui.components.WelcomeNotificationDialog
 import com.example.ui.screens.DeveloperSupportScreen
 import com.example.ui.screens.HistoryScreen
 import com.example.ui.screens.NetworkRadarScreen
 import com.example.ui.screens.ServersScreen
 import com.example.ui.screens.SpeedTestScreen
+import com.example.ui.screens.SplashScreen
 import com.example.ui.theme.CyberBackground
 import com.example.ui.theme.CyberCardBorder
 import com.example.ui.theme.CyberSurface
@@ -91,12 +93,26 @@ class MainActivity : ComponentActivity() {
 
                 var currentTab by remember { mutableIntStateOf(0) }
                 var showSupportDialog by remember { mutableStateOf(false) }
+                var isAppLoading by remember { mutableStateOf(true) }
+                var showWelcomeDialog by remember { mutableStateOf(false) }
 
-                if (showSupportDialog) {
-                    DeveloperSupportDialog(onDismissRequest = { showSupportDialog = false })
-                }
+                if (isAppLoading) {
+                    SplashScreen(
+                        onLoaded = {
+                            isAppLoading = false
+                            showWelcomeDialog = true
+                        }
+                    )
+                } else {
+                    if (showWelcomeDialog) {
+                        WelcomeNotificationDialog(onDismissRequest = { showWelcomeDialog = false })
+                    }
 
-                Scaffold(
+                    if (showSupportDialog) {
+                        DeveloperSupportDialog(onDismissRequest = { showSupportDialog = false })
+                    }
+
+                    Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
                         TopAppBar(
@@ -294,6 +310,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     }
+                }
                 }
             }
         }

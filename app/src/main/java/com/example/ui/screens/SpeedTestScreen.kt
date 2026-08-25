@@ -150,6 +150,7 @@ fun SpeedTestScreen(
             currentSpeedMbps = speedMetrics.currentMbps,
             testStage = testStage,
             progress = speedMetrics.progress,
+            remainingSeconds = speedMetrics.remainingSeconds,
             isBengali = false
         )
 
@@ -158,6 +159,13 @@ fun SpeedTestScreen(
             targetValue = if (isRunning) speedMetrics.progress else 0f,
             label = "testProgress"
         )
+        val stageIndicatorColor = when (testStage) {
+            TestStage.DOWNLOADING -> NeonCyan
+            TestStage.UPLOADING -> Color(0xFFC084FC)
+            TestStage.BUFFERBLOAT -> GlowPink
+            TestStage.COMPLETED -> SuccessGreen
+            else -> NeonCyan
+        }
         if (isRunning) {
             Spacer(modifier = Modifier.height(6.dp))
             LinearProgressIndicator(
@@ -166,7 +174,7 @@ fun SpeedTestScreen(
                     .fillMaxWidth(0.72f)
                     .height(4.dp)
                     .clip(CircleShape),
-                color = NeonCyan,
+                color = stageIndicatorColor,
                 trackColor = CyberSurfaceVariant
             )
         }
@@ -751,7 +759,7 @@ private fun SpeedMetricsGrid(
             value = upVal,
             unit = upUnit,
             icon = Icons.Default.ArrowUpward,
-            iconColor = ElectricBlue,
+            iconColor = Color(0xFFC084FC),
             isActive = testStage == TestStage.UPLOADING,
             modifier = Modifier.weight(1f)
         )

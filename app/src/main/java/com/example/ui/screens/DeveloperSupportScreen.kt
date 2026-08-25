@@ -1,7 +1,5 @@
 package com.example.ui.screens
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -27,18 +25,14 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Chat
-import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.SupportAgent
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -68,7 +62,6 @@ import com.example.ui.theme.SuccessGreen
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
-import com.example.ui.theme.WarningAmber
 
 @Composable
 fun DeveloperSupportScreen(
@@ -94,7 +87,7 @@ fun DeveloperSupportScreen(
         ) {
             Box(
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(42.dp)
                     .background(NeonCyan.copy(alpha = 0.15f), CircleShape)
                     .border(1.dp, NeonCyan.copy(alpha = 0.4f), CircleShape),
                 contentAlignment = Alignment.Center
@@ -103,7 +96,7 @@ fun DeveloperSupportScreen(
                     imageVector = Icons.Default.SupportAgent,
                     contentDescription = "Support",
                     tint = NeonCyan,
-                    modifier = Modifier.size(22.dp)
+                    modifier = Modifier.size(24.dp)
                 )
             }
             Spacer(modifier = Modifier.width(12.dp))
@@ -115,7 +108,7 @@ fun DeveloperSupportScreen(
                     color = TextPrimary
                 )
                 Text(
-                    text = "Direct Assistance & Technical Inquiries",
+                    text = "Instant 1-Tap Secure Assistance",
                     fontSize = 12.sp,
                     color = TextSecondary
                 )
@@ -124,118 +117,105 @@ fun DeveloperSupportScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Developer Profile Card
+        // Developer Profile Card (Privacy Protected)
         DeveloperProfileCard()
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Quick Direct Contact Buttons
-        Text(
-            text = "DIRECT CONTACT CHANNELS",
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Black,
-            color = NeonCyan,
+        // Quick Direct Contact Buttons Section Header
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 4.dp)
-        )
+                .padding(horizontal = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Security,
+                contentDescription = null,
+                tint = NeonCyan,
+                modifier = Modifier.size(14.dp)
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = "1-TAP DIRECT CHANNELS (TAP TO OPEN)",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Black,
+                color = NeonCyan,
+                letterSpacing = 0.5.sp
+            )
+        }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
-        // 1. Email Support
-        SupportContactItem(
+        // 1. Email Support (Protected Masked Link)
+        ProtectedContactCard(
             title = "Gmail / Email Support",
-            value = "alexraselchodhury@gmail.com",
+            subtitle = "Protected Support Mailbox • Tap to Launch",
             actionLabel = "Send Mail",
             badgeColor = Color(0xFFEA4335),
             icon = Icons.Default.Email,
             testTag = "support_channel_email",
-            onOpen = { openUrl(context, "mailto:alexraselchodhury@gmail.com") },
-            onCopy = { copyToClipboard(context, "alexraselchodhury@gmail.com", "Email copied to clipboard") }
+            onClick = { openUrl(context, "mailto:alexraselchodhury@gmail.com") }
         )
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // 2. WhatsApp Direct
-        SupportContactItem(
-            title = "WhatsApp Support",
-            value = "+8801882278234",
-            actionLabel = "Open Chat",
+        // 2. WhatsApp Direct (Protected Masked Link)
+        ProtectedContactCard(
+            title = "WhatsApp Official Support",
+            subtitle = "Direct Message Support • Tap to Chat",
+            actionLabel = "Open WhatsApp",
             badgeColor = Color(0xFF25D366),
             icon = Icons.Default.Chat,
             testTag = "support_channel_whatsapp",
-            onOpen = { openUrl(context, "https://wa.me/8801882278234") },
-            onCopy = { copyToClipboard(context, "+8801882278234", "WhatsApp number copied") }
+            onClick = { openUrl(context, "https://wa.me/8801882278234") }
         )
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // 3. Facebook Profile
-        SupportContactItem(
-            title = "Facebook Profile",
-            value = "md.rasel.7.8.2.3.4",
+        // 3. Facebook Profile (Protected Masked Link)
+        ProtectedContactCard(
+            title = "Facebook Official Support",
+            subtitle = "Direct Messenger • Tap to Connect",
             actionLabel = "View Profile",
             badgeColor = Color(0xFF1877F2),
             icon = Icons.Default.Public,
             testTag = "support_channel_facebook",
-            onOpen = { openUrl(context, "https://www.facebook.com/md.rasel.7.8.2.3.4") },
-            onCopy = { copyToClipboard(context, "https://www.facebook.com/md.rasel.7.8.2.3.4", "Facebook link copied") }
+            onClick = { openUrl(context, "https://www.facebook.com/md.rasel.7.8.2.3.4") }
         )
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // 4. Telegram Channel
-        SupportContactItem(
-            title = "Telegram Official",
-            value = "@HANTER_XD_OFFICIAL",
+        // 4. Telegram Channel (Protected Masked Link)
+        ProtectedContactCard(
+            title = "Telegram Official Support",
+            subtitle = "Official Channel • Tap to Open",
             actionLabel = "Open Telegram",
             badgeColor = Color(0xFF229ED9),
             icon = Icons.Default.Send,
             testTag = "support_channel_telegram",
-            onOpen = { openUrl(context, "https://t.me/HANTER_XD_OFFICIAL") },
-            onCopy = { copyToClipboard(context, "https://t.me/HANTER_XD_OFFICIAL", "Telegram link copied") }
+            onClick = { openUrl(context, "https://t.me/HANTER_XD_OFFICIAL") }
         )
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // 5. Phone Call Hotline
-        SupportContactItem(
-            title = "Direct Hotline / Call",
-            value = "+8801882278234",
+        // 5. Phone Call Hotline (Protected Masked Link)
+        ProtectedContactCard(
+            title = "Direct Voice Hotline",
+            subtitle = "Dedicated Assistance • Tap to Dial",
             actionLabel = "Call Now",
             badgeColor = ElectricBlue,
             icon = Icons.Default.Call,
             testTag = "support_channel_phone",
-            onOpen = { openUrl(context, "tel:+8801882278234") },
-            onCopy = { copyToClipboard(context, "+8801882278234", "Hotline number copied") }
+            onClick = { openUrl(context, "tel:+8801882278234") }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Network Diagnostics Export Card for Fast Debugging
-        DiagnosticsExportCard(
-            ispDetails = ispDetails,
-            wifiDetails = wifiDetails,
-            onCopy = {
-                val report = """
-                    --- RealSpeed Network Diagnostic Report ---
-                    Device: ${wifiDetails.userDeviceModel}
-                    Network: ${if (wifiDetails.isConnected) "Wi-Fi (${wifiDetails.ssid})" else "Broadband"}
-                    Router Brand: ${wifiDetails.routerBrand} (${wifiDetails.routerModel})
-                    Router Gateway IP: ${wifiDetails.gatewayIp}
-                    Wi-Fi Frequency: ${wifiDetails.frequencyBand} (Ch ${wifiDetails.channel})
-                    Link Speed: ${wifiDetails.linkSpeedMbps} Mbps
-                    ISP: ${ispDetails.ispName}
-                    Public IP: ${ispDetails.publicIp}
-                    ASN: ${ispDetails.asNumber}
-                    Location: ${ispDetails.city}, ${ispDetails.country}
-                    Engine: RealSpeed Anti-Fake Gigabit Core v2.5
-                """.trimIndent()
-                copyToClipboard(context, report, "Network diagnostic report copied to clipboard")
-            }
-        )
+        // Privacy Guarantee Card
+        PrivacyBadgeCard()
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(14.dp))
 
         // App Architecture Card
         AppInfoCard()
@@ -269,18 +249,18 @@ private fun DeveloperProfileCard() {
                 // Avatar Circle
                 Box(
                     modifier = Modifier
-                        .size(52.dp)
+                        .size(50.dp)
                         .background(
                             Brush.linearGradient(listOf(NeonCyan, ElectricBlue)),
                             CircleShape
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "MR",
-                        fontWeight = FontWeight.Black,
-                        color = Color.Black,
-                        fontSize = 18.sp
+                    Icon(
+                        imageVector = Icons.Default.VerifiedUser,
+                        contentDescription = "Verified Developer",
+                        tint = Color.Black,
+                        modifier = Modifier.size(26.dp)
                     )
                 }
 
@@ -291,10 +271,10 @@ private fun DeveloperProfileCard() {
                         Text(
                             text = "MD RASEL",
                             fontWeight = FontWeight.Black,
-                            fontSize = 18.sp,
+                            fontSize = 17.sp,
                             color = TextPrimary
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
                         Box(
                             modifier = Modifier
                                 .background(SuccessGreen.copy(alpha = 0.2f), RoundedCornerShape(6.dp))
@@ -302,7 +282,7 @@ private fun DeveloperProfileCard() {
                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                         ) {
                             Text(
-                                text = "VERIFIED DEVELOPER",
+                                text = "DEVELOPER",
                                 fontSize = 8.sp,
                                 fontWeight = FontWeight.Black,
                                 color = SuccessGreen
@@ -324,7 +304,7 @@ private fun DeveloperProfileCard() {
 
             // Bio description
             Text(
-                text = "Specializing in high-performance Gigabit network benchmarking, anti-throttling algorithms, real-time socket telemetry, and router hardware diagnostics.",
+                text = "Direct technical support for Gigabit network benchmarking, anti-throttling inquiries, and router hardware diagnostics. Tap any channel below to connect instantly.",
                 fontSize = 11.sp,
                 color = TextSecondary,
                 lineHeight = 16.sp
@@ -333,16 +313,20 @@ private fun DeveloperProfileCard() {
     }
 }
 
+/**
+ * Clean & Secure Protected Contact Card.
+ * No raw phone numbers, email addresses, or account handles are visible in plain text.
+ * Users can simply tap the card or action button to launch the corresponding app directly.
+ */
 @Composable
-private fun SupportContactItem(
+private fun ProtectedContactCard(
     title: String,
-    value: String,
+    subtitle: String,
     actionLabel: String,
     badgeColor: Color,
     icon: ImageVector,
     testTag: String,
-    onOpen: () -> Unit,
-    onCopy: () -> Unit
+    onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -350,7 +334,8 @@ private fun SupportContactItem(
             .clip(RoundedCornerShape(14.dp))
             .background(CyberSurface)
             .border(1.dp, CyberCardBorder, RoundedCornerShape(14.dp))
-            .padding(12.dp)
+            .clickable { onClick() }
+            .padding(14.dp)
             .testTag(testTag)
     ) {
         Row(
@@ -364,16 +349,16 @@ private fun SupportContactItem(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
-                        .background(badgeColor.copy(alpha = 0.15f), RoundedCornerShape(10.dp))
-                        .border(1.dp, badgeColor.copy(alpha = 0.5f), RoundedCornerShape(10.dp)),
+                        .size(42.dp)
+                        .background(badgeColor.copy(alpha = 0.15f), RoundedCornerShape(12.dp))
+                        .border(1.dp, badgeColor.copy(alpha = 0.45f), RoundedCornerShape(12.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = icon,
                         contentDescription = title,
                         tint = badgeColor,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(22.dp)
                     )
                 }
 
@@ -386,57 +371,36 @@ private fun SupportContactItem(
                         fontWeight = FontWeight.Bold,
                         color = TextPrimary
                     )
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = value,
+                        text = subtitle,
                         fontSize = 11.sp,
-                        fontFamily = FontFamily.Monospace,
                         color = TextSecondary
                     )
                 }
             }
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                // Copy button
-                Box(
-                    modifier = Modifier
-                        .size(34.dp)
-                        .background(CyberSurfaceVariant, CircleShape)
-                        .clickable { onCopy() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ContentCopy,
-                        contentDescription = "Copy",
-                        tint = TextSecondary,
-                        modifier = Modifier.size(16.dp)
+            // Clean 1-Tap Action Button
+            Box(
+                modifier = Modifier
+                    .background(badgeColor.copy(alpha = 0.18f), RoundedCornerShape(10.dp))
+                    .border(1.dp, badgeColor.copy(alpha = 0.55f), RoundedCornerShape(10.dp))
+                    .padding(horizontal = 10.dp, vertical = 6.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = actionLabel,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = badgeColor
                     )
-                }
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                // Action open button
-                Box(
-                    modifier = Modifier
-                        .background(badgeColor.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
-                        .border(1.dp, badgeColor.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
-                        .clickable { onOpen() }
-                        .padding(horizontal = 10.dp, vertical = 6.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = actionLabel,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = badgeColor
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Icon(
-                            imageVector = Icons.Default.OpenInNew,
-                            contentDescription = "Open",
-                            tint = badgeColor,
-                            modifier = Modifier.size(12.dp)
-                        )
-                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(
+                        imageVector = Icons.Default.OpenInNew,
+                        contentDescription = "Open",
+                        tint = badgeColor,
+                        modifier = Modifier.size(12.dp)
+                    )
                 }
             }
         }
@@ -444,79 +408,44 @@ private fun SupportContactItem(
 }
 
 @Composable
-private fun DiagnosticsExportCard(
-    ispDetails: IspDetails,
-    wifiDetails: WifiDetails,
-    onCopy: () -> Unit
-) {
+private fun PrivacyBadgeCard() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(14.dp))
             .background(CyberSurfaceElevated)
-            .border(1.dp, NeonPurple.copy(alpha = 0.4f), RoundedCornerShape(16.dp))
-            .padding(14.dp)
-            .testTag("diagnostics_export_card")
+            .border(1.dp, SuccessGreen.copy(alpha = 0.3f), RoundedCornerShape(14.dp))
+            .padding(12.dp)
     ) {
-        Column {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.Speed,
-                        contentDescription = "Report",
-                        tint = NeonPurple,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Diagnostics Troubleshooting Report",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = "Need help with ISP speeds or router configuration? One-tap copy full system telemetry (Router, ISP, BSSID, Subnet) to share directly with the developer.",
-                fontSize = 11.sp,
-                color = TextSecondary,
-                lineHeight = 15.sp
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Button(
-                onClick = onCopy,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = NeonPurple.copy(alpha = 0.2f),
-                    contentColor = NeonPurple
-                ),
-                shape = RoundedCornerShape(10.dp),
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .border(1.dp, NeonPurple.copy(alpha = 0.5f), RoundedCornerShape(10.dp))
-                    .testTag("copy_diagnostics_button")
+                    .size(32.dp)
+                    .background(SuccessGreen.copy(alpha = 0.15f), CircleShape)
+                    .border(1.dp, SuccessGreen.copy(alpha = 0.4f), CircleShape),
+                contentAlignment = Alignment.Center
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.ContentCopy,
-                        contentDescription = "Copy Report",
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "Copy Telemetry Report for Support",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Default.Lock,
+                    contentDescription = null,
+                    tint = SuccessGreen,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+            Column {
+                Text(
+                    text = "🔒 Direct 1-Tap Secure Channel",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = SuccessGreen
+                )
+                Text(
+                    text = "All support links launch securely into your phone's official applications without exposing cleartext credentials.",
+                    fontSize = 10.sp,
+                    color = TextSecondary,
+                    lineHeight = 14.sp
+                )
             }
         }
     }
@@ -555,7 +484,7 @@ private fun AppInfoCard() {
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = "RealSpeed Gigabit Engine with Anti-ISP Spoofing & Router OUI Hardware Intelligence. Built with Kotlin & Jetpack Compose.",
+                text = "RealSpeed Sustained 20s High-Precision Gigabit Engine with Anti-ISP Spoofing & Router Hardware Intelligence. Built with Kotlin & Jetpack Compose.",
                 fontSize = 10.sp,
                 color = TextMuted,
                 lineHeight = 14.sp
@@ -572,11 +501,4 @@ private fun openUrl(context: Context, urlString: String) {
     } catch (e: Exception) {
         Toast.makeText(context, "Unable to launch link: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
     }
-}
-
-private fun copyToClipboard(context: Context, text: String, message: String) {
-    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
-    val clip = ClipData.newPlainText("RealSpeed Info", text)
-    clipboard?.setPrimaryClip(clip)
-    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }

@@ -134,6 +134,8 @@ data class SpeedMetrics(
     val totalBytesUploaded: Long = 0L,
     val currentChunkInfo: String = "",
     val progress: Float = 0f,
+    val remainingSeconds: Int = 0,
+    val elapsedSeconds: Int = 0,
     val historySamples: List<SpeedSample> = emptyList(),
     // Multi-Country Server verification fields
     val isMultiServerMode: Boolean = true,
